@@ -1,32 +1,40 @@
-// "One Star, Written in Sap" — remake entry writer (Node 22, stdlib only).
-// Emits a single houseplant one-star review into $MAKEFUN_OUTPUT_DIR,
-// then re-reads the file and checks it against the competition gate
-// (UTF-8 text, 1-279 characters, never whitespace-only, one line).
+// One Star, Written in Sap — remake entry (Node 22, stdlib only).
+// Writes the houseplant one-star review to $MAKEFUN_OUTPUT_DIR/entry.txt
+// and verifies it against the competition gate before reporting success:
+// UTF-8, 1-279 characters, never whitespace-only, exactly one line.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const review =
+const REVIEW =
   "One star. I'm a 40-year-old juniper that should be 30 feet tall. He wires my branches and leaves the wire on until it bites into my bark, cuts my roots every spring, and keeps me eight inches high in a gravel tray. He calls it meditation. I call it a hostage situation.";
 
-const targetDir = process.env.MAKEFUN_OUTPUT_DIR ?? "output";
-mkdirSync(targetDir, { recursive: true });
-const targetFile = join(targetDir, "entry.txt");
+const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? "output";
+mkdirSync(outputDir, { recursive: true });
+const outputFile = join(outputDir, "entry.txt");
+writeFileSync(outputFile, REVIEW, "utf8");
 
-writeFileSync(targetFile, review, "utf8");
+// Read back what actually landed on disk — the gate judges the file,
+// not the intention, so every rule runs against the saved bytes. The
+// rule table keeps the contract in one place: add a rule by adding a
+// row, and the failure message names the row that broke.
+const saved = readFileSync(outputFile, "utf8");
+const byteCount = Buffer.byteLength(saved, "utf8");
 
-// Read back and hold the bytes up against every gate rule we know about.
-const onDisk = readFileSync(targetFile, "utf8");
-const checks: Array<[string, boolean]> = [
-  ["length within 1-279 chars", onDisk.length >= 1 && onDisk.length <= 279],
-  ["not whitespace only", onDisk.trim().length > 0],
-  ["single line, no line breaks", !/[\r\n]/.test(onDisk)],
-  ["plain ASCII so chars equal bytes", Buffer.byteLength(onDisk, "utf8") === onDisk.length],
-  ["no leading or trailing whitespace", onDisk === onDisk.trim()],
-  ["opens with the one-star marker", onDisk.startsWith("One star")],
-  ["file matches the review exactly", onDisk === review],
+const GATE: Array<[string, (t: string) => boolean]> = [
+  ["length within 1-279 characters", (t) => t.length >= 1 && t.length <= 279],
+  ["not whitespace only", (t) => t.trim().length > 0],
+  ["single line, no line breaks", (t) => !/[\r\n]/.test(t)],
+  ["plain ASCII, chars equal bytes", (t) => byteCount === t.length],
+  ["no leading or trailing whitespace", (t) => t === t.trim()],
+  ["opens with the one-star marker", (t) => t.startsWith("One star")],
+  ["saved bytes match the review", (t) => t === REVIEW],
 ];
-for (const [label, ok] of checks) {
-  if (!ok) throw new Error(`gate check failed: ${label}`);
+
+for (const [label, passes] of GATE) {
+  if (!passes(saved)) {
+    throw new Error(`gate check failed: ${label}`);
+  }
 }
-console.log(`OK ${onDisk.length} chars -> ${targetFile}`);
-console.log(onDisk);
+
+console.log(`OK ${saved.length} chars -> ${outputFile}`);
+console.log(saved);

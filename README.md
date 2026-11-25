@@ -10,18 +10,18 @@
 
 ## Why this line should win
 
-The original entry (a Venus flytrap fed steak) ranked 274 of 1,943 in round 1 — outside the top-5 cutoff. This remake changes species, grievance and joke mechanism entirely. Most houseplant reviews complain about water, light or a pot with no drainage hole; this one is filed by a tree whose owner stunts it on purpose and calls the stunting a hobby. The grievance is pure bonsai practice seen from inside the bark: training wire left on until it bites in and scars, roots cut back every spring so the tree can never outgrow its tray, forty years of growth held to eight inches. The single star is earned, the complaint reads like a real review, and the closer ("I call it a hostage situation") lands in the plant's own terms. Fresh angle — bonsai, juniper, wiring and root-pruning appear in none of the 1,651 prior submission titles scanned — specific detail, no stock phrases.
+The original entry ranked 274 of 1,943 in round 1, outside the top-5 cutoff. This remake swaps species, grievance and joke mechanism all at once. The usual houseplant review complains about water, light, or a pot with no drainage; this one comes from a tree whose owner stunts it deliberately and calls the stunting a hobby. Every detail is real bonsai practice seen from inside the bark: training wire left on until it bites in, roots cut back each spring so the tree can never outgrow its tray, forty years held to eight inches. Bonsai, juniper, wiring and root-pruning appear in none of the 1,651 prior submission titles scanned, and the closer lands in the plant's own terms.
 
 ## Verification
 
-Run it with Node 22 (standard library only, no dependencies):
+Node 22, standard library only:
 
 ```sh
 MAKEFUN_OUTPUT_DIR=output node main.ts
 cat output/entry.txt
 ```
 
-The program writes the review to `$MAKEFUN_OUTPUT_DIR/entry.txt`, reads it back, and asserts the competition gate before printing: UTF-8 text of 1–279 characters, not whitespace-only, exactly one line, plain ASCII (characters equal bytes), and byte-for-byte identical to the entry in `main.ts`. Any failed check throws and the run exits non-zero.
+The program writes the review to `$MAKEFUN_OUTPUT_DIR/entry.txt`, reads it back, and runs the full gate (1-279 characters, one line, plain ASCII, byte-identical to the entry in `main.ts`) before printing. Any failed rule throws and the run exits non-zero.
 
 ## License
 
